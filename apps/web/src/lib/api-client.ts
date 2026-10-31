@@ -19,7 +19,8 @@ export class ApiError extends Error {
   }
 }
 
-interface RequestOptions extends RequestInit {
+interface RequestOptions extends Omit<RequestInit, 'body'> {
+  body?: any;
   params?: Record<string, string | number | boolean | undefined>;
   token?: string;
   tenantId?: string;
@@ -30,7 +31,7 @@ export async function apiClient<T>(
   endpoint: string,
   options: RequestOptions = {},
 ): Promise<{ data: T; meta?: Record<string, any> }> {
-  const { params, token, tenantId, idempotencyKey, headers = {}, ...customConfig } = options;
+  const { params, token, tenantId, idempotencyKey, headers = {}, body, ...customConfig } = options;
 
   let url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
@@ -64,9 +65,15 @@ export async function apiClient<T>(
     reqHeaders['Idempotency-Key'] = idempotencyKey;
   }
 
+  let formattedBody = body;
+  if (body !== undefined && typeof body === 'object' && !(body instanceof FormData) && !(body instanceof Blob)) {
+    formattedBody = JSON.stringify(body);
+  }
+
   const response = await fetch(url, {
     ...customConfig,
     headers: reqHeaders,
+    body: formattedBody,
   });
 
   if (!response.ok) {
