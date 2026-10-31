@@ -8,8 +8,8 @@ export class Notification {
   @Prop({ type: Types.ObjectId, ref: 'Tenant', required: true, index: true })
   tenantId!: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
-  userId!: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'User', required: false, index: true })
+  userId?: Types.ObjectId;
 
   @Prop({ required: true, trim: true })
   title!: string;

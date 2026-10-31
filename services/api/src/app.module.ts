@@ -14,6 +14,7 @@ import { SuppliersModule } from './suppliers/suppliers.module';
 import { PurchaseOrdersModule } from './purchase-orders/purchase-orders.module';
 import { RecipesModule } from './recipes/recipes.module';
 import { ImportsExportsModule } from './imports-exports/imports-exports.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { HealthModule } from './health/health.module';
 
 @Module({
@@ -36,6 +37,7 @@ import { HealthModule } from './health/health.module';
     PurchaseOrdersModule,
     RecipesModule,
     ImportsExportsModule,
+    NotificationsModule,
     HealthModule,
   ],
 })
