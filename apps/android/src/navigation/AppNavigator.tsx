@@ -13,15 +13,22 @@ import { GoogleAuthScreen } from '../features/auth/GoogleAuthScreen';
 import { TenantSelectionScreen } from '../features/auth/TenantSelectionScreen';
 import { OnboardingScreen } from '../features/auth/OnboardingScreen';
 
+// Core Inventory & Sales Screens
+import { DashboardScreen } from '../features/inventory/DashboardScreen';
+import { InventoryListScreen } from '../features/inventory/InventoryListScreen';
+import { IngredientDetailScreen } from '../features/inventory/IngredientDetailScreen';
+import { AddEditIngredientScreen } from '../features/inventory/AddEditIngredientScreen';
+import { ReceiveStockScreen } from '../features/inventory/ReceiveStockScreen';
+import { AdjustStockScreen } from '../features/inventory/AdjustStockScreen';
+import { MovementsHistoryScreen } from '../features/inventory/MovementsHistoryScreen';
+import { RecordSaleScreen } from '../features/sales/RecordSaleScreen';
+
 // Core & Intelligence Screens (imported dynamically or via feature components)
 import { ScreenPlaceholder } from '../features/ScreenPlaceholder';
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-const PlaceholderDashboard = () => <ScreenPlaceholder title="Home Dashboard" />;
-const PlaceholderInventory = () => <ScreenPlaceholder title="Inventory Catalog" />;
-const PlaceholderSale = () => <ScreenPlaceholder title="Point of Sale Register" />;
 const PlaceholderForecast = () => <ScreenPlaceholder title="Demand Forecasting" />;
 const PlaceholderSettings = () => <ScreenPlaceholder title="Profile & Settings" />;
 
@@ -54,9 +61,9 @@ export const MainTabNavigator: React.FC = () => {
         },
       })}
     >
-      <Tab.Screen name="HomeTab" component={PlaceholderDashboard} options={{ title: 'Overview' }} />
-      <Tab.Screen name="InventoryTab" component={PlaceholderInventory} options={{ title: 'Inventory' }} />
-      <Tab.Screen name="SalesTab" component={PlaceholderSale} options={{ title: 'POS' }} />
+      <Tab.Screen name="HomeTab" component={DashboardScreen} options={{ title: 'Overview' }} />
+      <Tab.Screen name="InventoryTab" component={InventoryListScreen} options={{ title: 'Inventory' }} />
+      <Tab.Screen name="SalesTab" component={RecordSaleScreen} options={{ title: 'POS' }} />
       <Tab.Screen name="IntelligenceTab" component={PlaceholderForecast} options={{ title: 'Forecast' }} />
       <Tab.Screen name="MoreTab" component={PlaceholderSettings} options={{ title: 'More' }} />
     </Tab.Navigator>
@@ -81,24 +88,12 @@ export const AppNavigator: React.FC = () => {
       <Stack.Screen name="MainTabs" component={MainTabNavigator} />
 
       {/* Operation screens */}
-      <Stack.Screen name="IngredientDetail">
-        {() => <ScreenPlaceholder title="Ingredient Details" />}
-      </Stack.Screen>
-      <Stack.Screen name="AddEditIngredient">
-        {() => <ScreenPlaceholder title="Add / Edit Ingredient" />}
-      </Stack.Screen>
-      <Stack.Screen name="ReceiveStock">
-        {() => <ScreenPlaceholder title="Receive Stock" />}
-      </Stack.Screen>
-      <Stack.Screen name="AdjustStock">
-        {() => <ScreenPlaceholder title="Adjust Stock" />}
-      </Stack.Screen>
-      <Stack.Screen name="MovementsHistory">
-        {() => <ScreenPlaceholder title="Stock Movement History" />}
-      </Stack.Screen>
-      <Stack.Screen name="RecordSale">
-        {() => <ScreenPlaceholder title="Record Sale" />}
-      </Stack.Screen>
+      <Stack.Screen name="IngredientDetail" component={IngredientDetailScreen} />
+      <Stack.Screen name="AddEditIngredient" component={AddEditIngredientScreen} />
+      <Stack.Screen name="ReceiveStock" component={ReceiveStockScreen} />
+      <Stack.Screen name="AdjustStock" component={AdjustStockScreen} />
+      <Stack.Screen name="MovementsHistory" component={MovementsHistoryScreen} />
+      <Stack.Screen name="RecordSale" component={RecordSaleScreen} />
       <Stack.Screen name="ForecastSummary">
         {() => <ScreenPlaceholder title="Forecast Summary" />}
       </Stack.Screen>
