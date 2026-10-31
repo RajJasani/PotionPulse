@@ -30,3 +30,4 @@ export type MainTabParamList = {
   IntelligenceTab: undefined;
   MoreTab: undefined;
 };
+

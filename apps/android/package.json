@@ -8,7 +8,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "jest --passWithNoTests"
   },
   "dependencies": {
     "@potionpulse/contracts": "*",
@@ -27,7 +28,10 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@potionpulse/config": "*",
+    "@types/jest": "^30.0.0",
     "@types/react": "^18.3.18",
+    "jest": "^30.5.2",
+    "ts-jest": "^29.4.15",
     "typescript": "^5.7.3"
   }
 }
