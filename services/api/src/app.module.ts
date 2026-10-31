@@ -12,6 +12,7 @@ import { AnomaliesModule } from './anomalies/anomalies.module';
 import { EventsModule } from './events/events.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
 import { PurchaseOrdersModule } from './purchase-orders/purchase-orders.module';
+import { RecipesModule } from './recipes/recipes.module';
 import { HealthModule } from './health/health.module';
 
 @Module({
@@ -32,6 +33,7 @@ import { HealthModule } from './health/health.module';
     EventsModule,
     SuppliersModule,
     PurchaseOrdersModule,
+    RecipesModule,
     HealthModule,
   ],
 })
