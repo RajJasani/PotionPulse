@@ -23,14 +23,17 @@ import { AdjustStockScreen } from '../features/inventory/AdjustStockScreen';
 import { MovementsHistoryScreen } from '../features/inventory/MovementsHistoryScreen';
 import { RecordSaleScreen } from '../features/sales/RecordSaleScreen';
 
-// Core & Intelligence Screens (imported dynamically or via feature components)
-import { ScreenPlaceholder } from '../features/ScreenPlaceholder';
+// Intelligence & Operations Screens
+import { ForecastSummaryScreen } from '../features/intelligence/ForecastSummaryScreen';
+import { StockoutRiskScreen } from '../features/intelligence/StockoutRiskScreen';
+import { RestockRecommendationsScreen } from '../features/intelligence/RestockRecommendationsScreen';
+import { AnomalyAlertsScreen } from '../features/intelligence/AnomalyAlertsScreen';
+import { MidnightCurseScreen } from '../features/intelligence/MidnightCurseScreen';
+import { NotificationsScreen } from '../features/intelligence/NotificationsScreen';
+import { ProfileSettingsScreen } from '../features/settings/ProfileSettingsScreen';
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
-
-const PlaceholderForecast = () => <ScreenPlaceholder title="Demand Forecasting" />;
-const PlaceholderSettings = () => <ScreenPlaceholder title="Profile & Settings" />;
 
 export const MainTabNavigator: React.FC = () => {
   return (
@@ -64,8 +67,8 @@ export const MainTabNavigator: React.FC = () => {
       <Tab.Screen name="HomeTab" component={DashboardScreen} options={{ title: 'Overview' }} />
       <Tab.Screen name="InventoryTab" component={InventoryListScreen} options={{ title: 'Inventory' }} />
       <Tab.Screen name="SalesTab" component={RecordSaleScreen} options={{ title: 'POS' }} />
-      <Tab.Screen name="IntelligenceTab" component={PlaceholderForecast} options={{ title: 'Forecast' }} />
-      <Tab.Screen name="MoreTab" component={PlaceholderSettings} options={{ title: 'More' }} />
+      <Tab.Screen name="IntelligenceTab" component={ForecastSummaryScreen} options={{ title: 'Forecast' }} />
+      <Tab.Screen name="MoreTab" component={ProfileSettingsScreen} options={{ title: 'More' }} />
     </Tab.Navigator>
   );
 };
@@ -94,27 +97,13 @@ export const AppNavigator: React.FC = () => {
       <Stack.Screen name="AdjustStock" component={AdjustStockScreen} />
       <Stack.Screen name="MovementsHistory" component={MovementsHistoryScreen} />
       <Stack.Screen name="RecordSale" component={RecordSaleScreen} />
-      <Stack.Screen name="ForecastSummary">
-        {() => <ScreenPlaceholder title="Forecast Summary" />}
-      </Stack.Screen>
-      <Stack.Screen name="StockoutRisk">
-        {() => <ScreenPlaceholder title="Stockout Risk" />}
-      </Stack.Screen>
-      <Stack.Screen name="RestockRecommendations">
-        {() => <ScreenPlaceholder title="Restock Recommendations" />}
-      </Stack.Screen>
-      <Stack.Screen name="AnomalyAlerts">
-        {() => <ScreenPlaceholder title="Anomaly Alerts" />}
-      </Stack.Screen>
-      <Stack.Screen name="MidnightCurse">
-        {() => <ScreenPlaceholder title="Midnight Curse" />}
-      </Stack.Screen>
-      <Stack.Screen name="Notifications">
-        {() => <ScreenPlaceholder title="Notifications" />}
-      </Stack.Screen>
-      <Stack.Screen name="ProfileSettings">
-        {() => <ScreenPlaceholder title="Profile & Settings" />}
-      </Stack.Screen>
+      <Stack.Screen name="ForecastSummary" component={ForecastSummaryScreen} />
+      <Stack.Screen name="StockoutRisk" component={StockoutRiskScreen} />
+      <Stack.Screen name="RestockRecommendations" component={RestockRecommendationsScreen} />
+      <Stack.Screen name="AnomalyAlerts" component={AnomalyAlertsScreen} />
+      <Stack.Screen name="MidnightCurse" component={MidnightCurseScreen} />
+      <Stack.Screen name="Notifications" component={NotificationsScreen} />
+      <Stack.Screen name="ProfileSettings" component={ProfileSettingsScreen} />
     </Stack.Navigator>
   );
 };
