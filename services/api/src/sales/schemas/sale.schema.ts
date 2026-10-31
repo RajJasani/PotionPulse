@@ -17,6 +17,15 @@ export class Sale {
   })
   status!: string;
 
+  @Prop({
+    default: 'paid',
+    enum: ['paid', 'pending', 'refunded'],
+  })
+  paymentStatus!: string;
+
+  @Prop({ type: Types.ObjectId, ref: 'Customer' })
+  customerId?: Types.ObjectId;
+
   @Prop({ required: true, min: 0 })
   totalAmount!: number;
 
