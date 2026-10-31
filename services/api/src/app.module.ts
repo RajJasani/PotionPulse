@@ -5,6 +5,8 @@ import { AuthModule } from './auth/auth.module';
 import { TenantsModule } from './tenants/tenants.module';
 import { IngredientsModule } from './ingredients/ingredients.module';
 import { InventoryModule } from './inventory/inventory.module';
+import { SalesModule } from './sales/sales.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 import { HealthModule } from './health/health.module';
 
 @Module({
@@ -18,6 +20,8 @@ import { HealthModule } from './health/health.module';
     TenantsModule,
     IngredientsModule,
     InventoryModule,
+    SalesModule,
+    AnalyticsModule,
     HealthModule,
   ],
 })
