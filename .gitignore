@@ -62,7 +62,9 @@ coverage/
 .turbo/
 .temp/
 .tmp/
+*.tsbuildinfo
 
 # OS Files
 .DS_Store
 Thumbs.db
+

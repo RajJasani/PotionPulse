@@ -1,0 +1,23 @@
+{
+  "extends": "./packages/config/tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@potionpulse/config/*": ["packages/config/*"],
+      "@potionpulse/ui-tokens": ["packages/ui-tokens/src"],
+      "@potionpulse/contracts": ["packages/contracts/src"]
+    }
+  },
+  "include": [
+    "packages/**/*",
+    "apps/**/*",
+    "services/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    ".next"
+  ]
+}
+
