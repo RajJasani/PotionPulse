@@ -18,6 +18,8 @@
     "next": "^14.2.24",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "recharts": "^2.15.0",
+    "socket.io-client": "^4.8.1",
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {

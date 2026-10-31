@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { AuthProvider } from '@/lib/auth-context';
+import { SocketProvider } from '@/lib/socket-context';
 
 export const metadata: Metadata = {
   title: 'PotionPulse — Inventory Intelligence Platform',
@@ -14,9 +16,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-ink text-paleLavender antialiased selection:bg-potionPurple selection:text-white">
-        {children}
+        <AuthProvider>
+          <SocketProvider>{children}</SocketProvider>
+        </AuthProvider>
       </body>
     </html>
   );
 }
-
