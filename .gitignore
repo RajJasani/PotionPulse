@@ -47,6 +47,8 @@ GoogleService-Info.plist
 *.sqlite
 *.sqlite3
 *.db
+*.db-shm
+*.db-wal
 mongodump/
 local_data/
 
