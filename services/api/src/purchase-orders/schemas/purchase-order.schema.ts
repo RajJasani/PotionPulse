@@ -3,6 +3,17 @@ import { Document, Types, Schema as MongooseSchema } from 'mongoose';
 
 export type PurchaseOrderDocument = PurchaseOrder & Document;
 
+export interface PurchaseOrderItem {
+  ingredientId: Types.ObjectId;
+  ingredientName?: string;
+  unit?: string;
+  orderedQty: number;
+  receivedQty: number;
+  unitCost: number;
+  packSize: number;
+  subtotal: number;
+}
+
 @Schema({ timestamps: true })
 export class PurchaseOrder {
   @Prop({ type: Types.ObjectId, ref: 'Tenant', required: true, index: true })
@@ -23,19 +34,23 @@ export class PurchaseOrder {
   @Prop({ default: null })
   expectedAt?: Date;
 
+  @Prop({ default: null })
+  submittedAt?: Date;
+
+  @Prop({ default: null })
+  completedAt?: Date;
+
   @Prop({ default: 0, min: 0 })
   totalCost!: number;
 
   @Prop({ type: MongooseSchema.Types.Mixed, default: [] })
-  items!: Array<{
-    ingredientId: Types.ObjectId;
-    orderedQty: number;
-    receivedQty: number;
-    unitCost: number;
-  }>;
+  items!: PurchaseOrderItem[];
 
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  createdBy!: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  createdBy?: Types.ObjectId;
+
+  @Prop({ trim: true })
+  notes?: string;
 
   createdAt?: Date;
   updatedAt?: Date;
