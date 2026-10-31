@@ -46,3 +46,4 @@ describe('Android Auth & Role Permission Suite', () => {
     ).toBe(true);
   });
 });
+

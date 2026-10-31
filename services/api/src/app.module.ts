@@ -7,6 +7,8 @@ import { IngredientsModule } from './ingredients/ingredients.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { SalesModule } from './sales/sales.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { ForecastsModule } from './forecasts/forecasts.module';
+import { AnomaliesModule } from './anomalies/anomalies.module';
 import { EventsModule } from './events/events.module';
 import { HealthModule } from './health/health.module';
 
@@ -23,6 +25,8 @@ import { HealthModule } from './health/health.module';
     InventoryModule,
     SalesModule,
     AnalyticsModule,
+    ForecastsModule,
+    AnomaliesModule,
     EventsModule,
     HealthModule,
   ],

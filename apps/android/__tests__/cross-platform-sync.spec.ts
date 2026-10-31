@@ -31,3 +31,4 @@ describe('Cross-Platform Web & Android Synchronization Parity', () => {
     expect(affectedIngredients).toContain('Ghost Pepper');
   });
 });
+
