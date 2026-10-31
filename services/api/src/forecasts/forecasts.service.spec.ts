@@ -115,3 +115,4 @@ describe('ForecastsService Integration Spec', () => {
     expect(summary[0]?.riskLevel).toBeDefined();
   });
 });
+

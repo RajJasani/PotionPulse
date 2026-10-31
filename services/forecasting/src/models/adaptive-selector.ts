@@ -68,12 +68,17 @@ export class AdaptiveForecastSelector {
       }
     }
 
+    // Filter event windows to only those that apply to this ingredient
+    const applicableEvents = eventWindows.filter(
+      (e) => !e.affectedIngredientIds || e.affectedIngredientIds.length === 0 || e.affectedIngredientIds.includes(ingredientId)
+    );
+
     // Fit model on full available historical points
     chosenForecaster.fit(series);
-    const forecastPoints = chosenForecaster.predict(horizonDays, eventWindows);
+    const forecastPoints = chosenForecaster.predict(horizonDays, applicableEvents);
 
-    if (eventWindows.length > 0) {
-      const activeSurges = eventWindows.map((e) => `${e.name} (${e.multiplier}x from ${e.startDate} to ${e.endDate})`).join(', ');
+    if (applicableEvents.length > 0) {
+      const activeSurges = applicableEvents.map((e) => `${e.name} (${e.multiplier}x from ${e.startDate} to ${e.endDate})`).join(', ');
       methodologyNotes.push(`Applied seasonal event adjustments: ${activeSurges}.`);
     }
 
@@ -89,3 +94,4 @@ export class AdaptiveForecastSelector {
     };
   }
 }
+

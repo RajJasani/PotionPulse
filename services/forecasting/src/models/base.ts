@@ -11,12 +11,20 @@ export interface Forecaster {
 export function applyEventMultiplier(
   baseValue: number,
   dateStr: string,
-  eventWindows: SeasonalEventWindow[] = []
+  eventWindows: SeasonalEventWindow[] = [],
+  ingredientId?: string,
 ): { value: number; multiplier: number } {
   let multiplier = 1.0;
   for (const window of eventWindows) {
     if (dateStr >= window.startDate && dateStr <= window.endDate) {
-      multiplier *= window.multiplier;
+      if (
+        !ingredientId ||
+        !window.affectedIngredientIds ||
+        window.affectedIngredientIds.length === 0 ||
+        window.affectedIngredientIds.includes(ingredientId)
+      ) {
+        multiplier *= window.multiplier;
+      }
     }
   }
   return {
@@ -36,3 +44,4 @@ export function computeIntervalBounds(
     upperBound: Math.round((pointValue + margin) * 10) / 10,
   };
 }
+

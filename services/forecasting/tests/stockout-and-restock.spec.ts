@@ -100,3 +100,4 @@ describe('Stockout Predictor & Restock Optimizer Suite', () => {
     expect(plan.recommendedQuantity).toBe(0);
   });
 });
+
