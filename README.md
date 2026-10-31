@@ -120,3 +120,4 @@ All API routes follow the standard `/api/v1` prefix with standardized JSON envel
 ## 8. License
 
 Proprietary — Developed for MSOT Hackathon 2026. All rights reserved.
+
