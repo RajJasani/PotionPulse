@@ -6,6 +6,9 @@ import { Sale, SaleSchema } from '../sales/schemas/sale.schema';
 import { SaleItem, SaleItemSchema } from '../sales/schemas/sale-item.schema';
 import { InventoryBalance, InventoryBalanceSchema } from '../inventory/schemas/inventory-balance.schema';
 import { Ingredient, IngredientSchema } from '../ingredients/schemas/ingredient.schema';
+import { StockMovement, StockMovementSchema } from '../movements/schemas/stock-movement.schema';
+import { Supplier, SupplierSchema } from '../suppliers/schemas/supplier.schema';
+import { PurchaseOrder, PurchaseOrderSchema } from '../purchase-orders/schemas/purchase-order.schema';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
@@ -16,6 +19,9 @@ import { AuthModule } from '../auth/auth.module';
       { name: SaleItem.name, schema: SaleItemSchema },
       { name: InventoryBalance.name, schema: InventoryBalanceSchema },
       { name: Ingredient.name, schema: IngredientSchema },
+      { name: StockMovement.name, schema: StockMovementSchema },
+      { name: Supplier.name, schema: SupplierSchema },
+      { name: PurchaseOrder.name, schema: PurchaseOrderSchema },
     ]),
   ],
   controllers: [AnalyticsController],

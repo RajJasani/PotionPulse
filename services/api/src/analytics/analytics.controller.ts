@@ -6,7 +6,7 @@ import { TenantGuard } from '../auth/guards/tenant.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { ActiveTenant, ActiveTenantContext } from '../auth/decorators/active-tenant.decorator';
 
-@ApiTags('Analytics')
+@ApiTags('Analytics & Reports')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, TenantGuard, RolesGuard)
 @ApiHeader({ name: 'x-tenant-id', required: false, description: 'Target tenant workspace ID' })
@@ -34,6 +34,35 @@ export class AnalyticsController {
       ingredientId,
       days,
     });
+    return { data };
+  }
+
+  @Get('wastage')
+  @ApiOperation({ summary: 'Get comprehensive inventory wastage and brewing loss report' })
+  @ApiQuery({ name: 'days', required: false, type: Number, description: 'Evaluation window in days (default 30)' })
+  async getWastage(
+    @ActiveTenant() tenant: ActiveTenantContext,
+    @Query('days') days?: number,
+  ) {
+    const data = await this.analyticsService.getWastageAnalysis(tenant.tenantId, days || 30);
+    return { data };
+  }
+
+  @Get('suppliers')
+  @ApiOperation({ summary: 'Get supplier performance report, fulfillment rates, and lead times' })
+  async getSupplierPerformance(@ActiveTenant() tenant: ActiveTenantContext) {
+    const data = await this.analyticsService.getSupplierPerformanceReport(tenant.tenantId);
+    return { data };
+  }
+
+  @Get('comparison')
+  @ApiOperation({ summary: 'Period-over-period comparative analytics (current vs previous window)' })
+  @ApiQuery({ name: 'periodDays', required: false, type: Number, description: 'Comparison period in days (default 7)' })
+  async getComparison(
+    @ActiveTenant() tenant: ActiveTenantContext,
+    @Query('periodDays') periodDays?: number,
+  ) {
+    const data = await this.analyticsService.getPeriodOverPeriodComparison(tenant.tenantId, periodDays || 7);
     return { data };
   }
 }
