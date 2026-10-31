@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { AppShell } from '@/components/layout/app-shell';
@@ -13,7 +13,7 @@ import { apiClient } from '@/lib/api-client';
 import { ArrowLeft, Save, PlusCircle, CheckCircle2 } from 'lucide-react';
 import { StockMovementType } from '@potionpulse/contracts';
 
-export default function AdjustStockPage() {
+function AdjustStockPageContent() {
   const searchParams = useSearchParams();
   const preselectedIngredientId = searchParams.get('ingredientId') || '';
   const { activeTenant, accessToken } = useAuth();
@@ -285,5 +285,13 @@ export default function AdjustStockPage() {
         </Card>
       </div>
     </AppShell>
+  );
+}
+
+export default function AdjustStockPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-ink flex items-center justify-center text-paleLavender/50">Loading adjustment form...</div>}>
+      <AdjustStockPageContent />
+    </Suspense>
   );
 }
