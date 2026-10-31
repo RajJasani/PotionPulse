@@ -1,179 +1,178 @@
+/**
+ * Mobile API Service for Madam Hexley's Potion Pantry
+ * Supports runtime-configurable backend URLs for physical devices and Android emulators.
+ */
+
+import {
+  Ingredient,
+  ProphecyStockout,
+  ReorderRecommendation,
+  Anomaly,
+  PotionEvent,
+  SaleCreate,
+  SaleResponse,
+  StockAdjustCreate,
+  StockMovement,
+  ForecastResponse,
+  DemandHistoryResponse,
+  EventCreate,
+  Shelf,
+} from '../types/api.types';
 import { networkService } from './network';
-import { storage } from './storage';
-
-export const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
-
-export class ApiError extends Error {
-  public status: number;
-  public code: string;
-  public details?: any;
-
-  constructor(status: number, message: string, code: string = 'API_ERROR', details?: any) {
-    super(message);
-    this.name = 'ApiError';
-    this.status = status;
-    this.code = code;
-    this.details = details;
-  }
-}
 
 export class OfflineWriteError extends Error {
-  constructor(message = 'Inventory mutations require an active internet connection. Operation blocked by Online-Only Policy.') {
+  constructor(message = 'Network write error: backend unreachable.') {
     super(message);
     this.name = 'OfflineWriteError';
   }
 }
 
-interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  body?: any;
-  params?: Record<string, string | number | boolean | undefined>;
-  headers?: Record<string, string>;
-  idempotencyKey?: string;
-  skipOfflineCheck?: boolean;
-}
+// Default: 10.0.2.2 is Android Emulator host loopback; on physical device, use Wi-Fi LAN IP (e.g. 192.168.1.X:8000)
+let currentBaseUrl = 'http://10.0.2.2:8000';
 
-interface CachedResponse<T> {
-  data: T;
-  meta?: any;
-  cachedAt: string;
-}
+export const setMobileApiBaseUrl = (url: string) => {
+  currentBaseUrl = url.replace(/\/$/, '');
+};
 
-class ApiService {
-  private cache: Map<string, CachedResponse<any>> = new Map();
+export const getMobileApiBaseUrl = () => currentBaseUrl;
 
-  async request<T>(endpoint: string, options: RequestOptions = {}): Promise<{ data: T; meta?: any; fromCache?: boolean; cachedAt?: string }> {
-    const {
-      method = 'GET',
-      body,
-      params,
-      headers = {},
-      idempotencyKey,
-      skipOfflineCheck = false,
-    } = options;
-
-    const isMutation = method !== 'GET';
-
-    // Strict Online-Only Policy enforcement:
-    // "Inventory mutations require an active internet connection.
-    // When offline: Disable write operations. Do not silently queue inventory mutations."
-    if (isMutation && !networkService.isOnline && !skipOfflineCheck) {
-      throw new OfflineWriteError();
-    }
-
-    let url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-
-    if (params) {
-      const searchParams = new URLSearchParams();
-      Object.entries(params).forEach(([key, val]) => {
-        if (val !== undefined && val !== null && val !== '') {
-          searchParams.append(key, String(val));
-        }
-      });
-      const qs = searchParams.toString();
-      if (qs) {
-        url += (url.includes('?') ? '&' : '?') + qs;
-      }
-    }
-
-    // Retrieve active session token and tenant ID from secure storage
-    const token = await storage.getItem('pp_access_token');
-    const tenantId = await storage.getItem('pp_tenant_id');
-
-    const reqHeaders: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...headers,
-    };
-
-    if (token) {
-      reqHeaders['Authorization'] = `Bearer ${token}`;
-    }
-
-    if (tenantId) {
-      reqHeaders['x-tenant-id'] = tenantId;
-    }
-
-    if (idempotencyKey) {
-      reqHeaders['Idempotency-Key'] = idempotencyKey;
-    }
-
-    // If offline and request is GET, return cached data if available
-    if (!networkService.isOnline && method === 'GET') {
-      const cached = this.cache.get(url);
-      if (cached) {
-        return {
-          data: cached.data,
-          meta: cached.meta,
-          fromCache: true,
-          cachedAt: cached.cachedAt,
-        };
-      }
-      throw new Error(`Device is offline and no cached summary is available for: ${endpoint}`);
-    }
-
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: reqHeaders,
-        body: body ? JSON.stringify(body) : undefined,
-      });
-
-      if (!response.ok) {
-        let errJson: any;
-        try {
-          errJson = await response.json();
-        } catch {
-          // ignore
-        }
-        const message = errJson?.error?.message || `HTTP ${response.status}: ${response.statusText}`;
-        const code = errJson?.error?.code || 'UNKNOWN_ERROR';
-        throw new ApiError(response.status, message, code, errJson?.error?.details);
-      }
-
-      const json = await response.json();
-      networkService.setOnlineStatus(true);
-
-      // Cache GET responses
-      if (method === 'GET') {
-        this.cache.set(url, {
-          data: json.data,
-          meta: json.meta,
-          cachedAt: new Date().toISOString(),
-        });
-      }
-
-      return {
-        data: json.data,
-        meta: json.meta,
-        fromCache: false,
-      };
-    } catch (err: any) {
-      if (err instanceof ApiError || err instanceof OfflineWriteError) {
-        throw err;
-      }
-      // Network transport failure -> mark offline
-      networkService.setOnlineStatus(false);
-
-      if (method === 'GET') {
-        const cached = this.cache.get(url);
-        if (cached) {
-          return {
-            data: cached.data,
-            meta: cached.meta,
-            fromCache: true,
-            cachedAt: cached.cachedAt,
-          };
-        }
-      }
-      throw new Error(err.message || 'Network connection failed');
-    }
+const request = async <T>(endpoint: string, options: any = {}): Promise<T> => {
+  const method = (options.method || 'GET').toUpperCase();
+  if (!networkService.isOnline && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+    throw new OfflineWriteError('Device is offline. Mutation operations are blocked.');
   }
 
-  clearCache() {
-    this.cache.clear();
+  const url = `${currentBaseUrl}/api${endpoint}`;
+  let bodyData = options.body;
+  if (bodyData && typeof bodyData === 'object' && !(bodyData instanceof FormData)) {
+    bodyData = JSON.stringify(bodyData);
   }
-}
 
-export const api = new ApiService();
+  const headers = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+    ...(options.headers || {}),
+  };
 
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 9000);
+
+    const response = await fetch(url, {
+      ...options,
+      body: bodyData,
+      headers,
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      let errorDetail = `Arcane error: ${response.status} ${response.statusText}`;
+      try {
+        const errJson = await response.json();
+        if (errJson && errJson.detail) {
+          errorDetail = errJson.detail;
+        }
+      } catch {
+        // fallback
+      }
+      throw new Error(errorDetail);
+    }
+    return (await response.json()) as T;
+  } catch (err: any) {
+    if (err.name === 'AbortError') {
+      throw new OfflineWriteError(`Connection timed out reaching ${currentBaseUrl}.`);
+    }
+    console.error(`Mobile API Error [${endpoint}]:`, err.message);
+    throw err;
+  }
+};
+
+export const mobileApi = {
+  // Shelves
+  getShelves: () => request<Shelf[]>('/shelves'),
+
+  // Ingredients
+  getIngredients: (params?: { shelf_id?: string; category?: string; low_stock_only?: boolean }) => {
+    const query = new URLSearchParams();
+    if (params?.shelf_id) query.append('shelf_id', params.shelf_id);
+    if (params?.category) query.append('category', params.category);
+    if (params?.low_stock_only) query.append('low_stock_only', 'true');
+    const qs = query.toString() ? `?${query.toString()}` : '';
+    return request<Ingredient[]>(`/ingredients${qs}`);
+  },
+
+  getIngredient: (id: string) => request<Ingredient>(`/ingredients/${id}`),
+
+  // Sales & Stock
+  recordSale: (data: SaleCreate) =>
+    request<SaleResponse>('/sales', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  adjustStock: (data: StockAdjustCreate) =>
+    request<StockMovement>('/stock/adjust', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  getDemandHistory: (ingredientId: string, days: number = 30) =>
+    request<DemandHistoryResponse>(`/sales/history/${ingredientId}?days=${days}`),
+
+  // ML Intelligence
+  getForecast: (ingredientId: string, horizonDays: number = 14) =>
+    request<ForecastResponse>(`/forecasts/${ingredientId}?horizon_days=${horizonDays}`),
+
+  getStockoutProphecies: () => request<ProphecyStockout[]>('/prophecies/stockouts'),
+
+  getReorderRecommendations: () => request<ReorderRecommendation[]>('/recommendations/reorder'),
+
+  // Anomalies
+  getAnomalies: (status?: string) => {
+    const qs = status ? `?status=${status}` : '';
+    return request<Anomaly[]>(`/anomalies${qs}`);
+  },
+
+  resolveAnomaly: (id: string, notes?: string) =>
+    request<Anomaly>(`/anomalies/${id}/resolve`, {
+      method: 'POST',
+      body: JSON.stringify({ status: 'RESOLVED', notes: notes || 'Resolved via Android App.' }),
+    }),
+
+  scanAnomalies: () =>
+    request<{ status: string; total_anomalies_detected: number; new_anomalies_recorded: number }>(
+      '/anomalies/scan',
+      { method: 'POST' }
+    ),
+
+  // Events
+  getEvents: (activeOnly: boolean = false) => {
+    const qs = activeOnly ? '?active_only=true' : '';
+    return request<PotionEvent[]>(`/events${qs}`);
+  },
+
+  createEvent: (data: EventCreate) =>
+    request<PotionEvent>('/events', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateEvent: (id: string, data: EventCreate) =>
+    request<PotionEvent>(`/events/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  testConnection: async () => {
+    return request<{ status: string; service: string }>('/');
+  },
+
+  request: <T>(endpoint: string, options: any = {}) => request<T>(endpoint, options),
+
+  clearCache: () => {
+    // Cache clearing hook for mobile offline layer
+  },
+};
+
+export const api = mobileApi;
