@@ -12,10 +12,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           configService.get<string>('MONGODB_URI') ||
           'mongodb://localhost:27017/potionpulse';
 
-        logger.log(`Connecting to MongoDB (database target configured)`);
+        logger.log(`Connecting to MongoDB (target: ${uri.replace(/\/\/([^:]+):([^@]+)@/, '//$1:***@')})`);
         return {
           uri,
           autoIndex: true,
+          serverSelectionTimeoutMS: 2000,
+          connectTimeoutMS: 2000,
         };
       },
       inject: [ConfigService],

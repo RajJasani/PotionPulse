@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model, Types } from 'mongoose';
@@ -15,6 +16,7 @@ import { AuditLog, AuditLogDocument } from '../audit/schemas/audit-log.schema';
 import { IdempotencyRecord, IdempotencyRecordDocument } from '../common/schemas/idempotency.schema';
 import { CreateLocationDto } from './dto/location.dto';
 import { CreateMovementDto } from './dto/movement.dto';
+import { EventsGateway } from '../events/events.gateway';
 import { StockMovementType } from '@potionpulse/contracts';
 
 @Injectable()
@@ -28,6 +30,7 @@ export class InventoryService {
     @InjectModel(Tenant.name) private tenantModel: Model<TenantDocument>,
     @InjectModel(AuditLog.name) private auditModel: Model<AuditLogDocument>,
     @InjectModel(IdempotencyRecord.name) private idempotencyModel: Model<IdempotencyRecordDocument>,
+    @Optional() private readonly eventsGateway?: EventsGateway,
   ) {}
 
   async createLocation(tenantId: string, dto: CreateLocationDto) {
@@ -311,6 +314,9 @@ export class InventoryService {
       if (useTransaction && session) {
         await session.commitTransaction();
       }
+
+      // Broadcast committed change in real-time to active tenant room
+      this.eventsGateway?.broadcastInventoryUpdate(tenantId, result);
 
       return result;
     } catch (err) {

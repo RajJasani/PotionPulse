@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -10,6 +11,7 @@ import { SaleItem, SaleItemDocument } from './schemas/sale-item.schema';
 import { InventoryService } from '../inventory/inventory.service';
 import { Ingredient, IngredientDocument } from '../ingredients/schemas/ingredient.schema';
 import { CreateSaleDto, RefundSaleDto } from './dto/sale.dto';
+import { EventsGateway } from '../events/events.gateway';
 import { StockMovementType } from '@potionpulse/contracts';
 
 @Injectable()
@@ -19,6 +21,7 @@ export class SalesService {
     @InjectModel(SaleItem.name) private saleItemModel: Model<SaleItemDocument>,
     @InjectModel(Ingredient.name) private ingredientModel: Model<IngredientDocument>,
     private inventoryService: InventoryService,
+    @Optional() private readonly eventsGateway?: EventsGateway,
   ) {}
 
   private generateSaleNumber(): string {
@@ -117,7 +120,7 @@ export class SalesService {
       });
     }
 
-    return {
+    const result = {
       id: sale._id.toString(),
       saleNumber: sale.saleNumber,
       status: sale.status,
@@ -134,6 +137,10 @@ export class SalesService {
       })),
       movements,
     };
+
+    this.eventsGateway?.broadcastSaleCompleted(tenantId, result);
+
+    return result;
   }
 
   async getSales(tenantId: string, query: { page?: number; limit?: number }) {
